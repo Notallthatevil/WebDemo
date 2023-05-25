@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebDemo.Server.Models;
 
@@ -26,11 +28,9 @@ public partial class NateDbContext : DbContext
     {
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasIndex(e => e.Name, "UQ__Departme__72E12F1B0351C034").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__tmp_ms_x__72E12F1BAB7A1210").IsUnique();
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .IsUnicode(false)
