@@ -1,0 +1,60 @@
+﻿@page "/addEmployee"
+@using WebDemo.Shared
+@inject HttpClient Http
+@inject IToastService toastService
+@inject NavigationManager nav
+
+
+<PageTitle>Add a new employee</PageTitle>
+
+<h1>Add Employee</h1>
+
+<EditForm Model="@_employee" OnValidSubmit="@HandleValidSubmit">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+	<p>
+		<label>
+			First Name:
+			<InputText @bind-Value="_employee.FirstName" />
+		</label>
+	</p>
+	<p>
+		<label>
+			Last Name:
+			<InputText @bind-Value="_employee.LastName" />
+		</label>
+	</p>
+	<p>
+		<label>
+			Title:
+			<InputText @bind-Value="_employee.Title" />
+		</label>
+	</p>
+	<p>
+		<label>
+			Department:
+			<InputText @bind-Value="_employee.Department" />
+		</label>
+	</p>
+	<button type="submit">Submit</button>
+</EditForm>
+
+@code {
+	private Employee _employee = new();
+
+	private async void HandleValidSubmit()
+	{
+		var result = await Http.PostAsJsonAsync<Employee>("Employee", _employee);
+		if (result.IsSuccessStatusCode)
+		{
+			toastService.ShowSuccess("Success");
+			nav.NavigateTo("employees", false, true);
+		}
+		else
+		{
+			var error = await result.Content.ReadAsStringAsync();
+			toastService.ShowError(error ?? string.Empty);
+		}
+	}
+}

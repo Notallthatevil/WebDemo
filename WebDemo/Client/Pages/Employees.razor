@@ -1,11 +1,14 @@
 ﻿@page "/employees"
 @using WebDemo.Shared
 @inject HttpClient Http
+@inject NavigationManager nav
 
 <PageTitle>Employees</PageTitle>
 
 <h1>Employees</h1>
 
+
+<button @onclick="@(()=>nav.NavigateTo("/addEmployee"))" />
 
 @if (_employees == null)
 {
