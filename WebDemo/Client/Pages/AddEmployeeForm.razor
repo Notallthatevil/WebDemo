@@ -45,7 +45,7 @@
 
 	private async void HandleValidSubmit()
 	{
-		var result = await Http.PostAsJsonAsync<Employee>("Employee", _employee);
+		var result = await Http.PostAsJsonAsync<Employee>("Employee/AddEmployee", _employee);
 		if (result.IsSuccessStatusCode)
 		{
 			toastService.ShowSuccess("Success");

@@ -2,49 +2,77 @@
 @using WebDemo.Shared
 @inject HttpClient Http
 @inject NavigationManager nav
+@inject IToastService toastService
 
 <PageTitle>Employees</PageTitle>
 
 <h1>Employees</h1>
 
 
-<button @onclick="@(()=>nav.NavigateTo("/addEmployee"))" />
+<button type="button" class="btn btn-primary" @onclick="@(()=>nav.NavigateTo("/addEmployee"))" >Add Employee</button>
 
 @if (_employees == null)
 {
-    <p><em>Loading...</em></p>
+	<p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Title</th>
-                <th>Department</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var emp in _employees)
-            {
-                <tr>
-                    <td>@emp.FirstName</td>
-                    <td>@emp.LastName</td>
-                    <td>@emp.Title</td>
-                    <td>@emp.Department</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Employee Id</th>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Title</th>
+				<th>Department</th>
+				<th></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var emp in _employees)
+			{
+				<tr>
+					<td>@emp.Id</td>
+					<td>@emp.FirstName</td>
+					<td>@emp.LastName</td>
+					<td>@emp.Title</td>
+					<td>@emp.Department</td>
+					<td>
+						<button type="button" class="btn btn-primary" @onclick="()=>DeleteEmployee(emp)">Delete</button>
+					</td>
+					<td>
+						<button type="button" class="btn btn-primary" >Update</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 }
 
 @code {
-    private Employee[]? _employees;
+	private List<Employee>? _employees;
 
 
-    protected override async Task OnInitializedAsync()
-    {
-        _employees = await Http.GetFromJsonAsync<Employee[]>("Employee");
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		_employees = await Http.GetFromJsonAsync<List<Employee>>("Employee");
+	}
+
+	private async void DeleteEmployee(Employee employee)
+	{
+		var result = await Http.PostAsJsonAsync<Employee>("Employee/DeleteEmployee", employee);
+
+		if (result.IsSuccessStatusCode)
+		{
+			toastService.ShowSuccess("Success");
+			_employees?.Remove(employee);
+			StateHasChanged();
+		}
+		else
+		{
+			var error = await result.Content.ReadAsStringAsync();
+			toastService.ShowError(error ?? string.Empty);
+		}
+	}
 }
