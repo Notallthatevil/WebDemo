@@ -75,12 +75,10 @@ public partial class NateDbContext : DbContext
 
             entity.HasOne(d => d.Department).WithOne(p => p.Manager)
                 .HasForeignKey<Manager>(d => d.DepartmentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Manager_Departments");
 
             entity.HasOne(d => d.ManagerNavigation).WithMany(p => p.Managers)
                 .HasForeignKey(d => d.ManagerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Manager_Employee");
         });
 
