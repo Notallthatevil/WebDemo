@@ -1,0 +1,95 @@
+﻿@page "/updateEmployee/{EmpId:int}"
+@using WebDemo.Shared
+@inject HttpClient Http
+@inject IToastService toastService
+@inject NavigationManager nav
+
+
+<PageTitle>Update employee</PageTitle>
+
+@if (_employee == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+
+	<h1>Update Employee</h1>
+
+	<EditForm Model="@_employee" OnValidSubmit="@HandleValidSubmit">
+		<DataAnnotationsValidator />
+		<ValidationSummary />
+
+		<p>
+			<label>
+				First Name:
+				<InputText @bind-Value="_employee.FirstName" />
+			</label>
+		</p>
+		<p>
+			<label>
+				Last Name:
+				<InputText @bind-Value="_employee.LastName" />
+			</label>
+		</p>
+		<p>
+			<label>
+				Title:
+				<InputText @bind-Value="_employee.Title" />
+			</label>
+		</p>
+		<p>
+			<label>
+				Department:
+				<InputText @bind-Value="_employee.Department" />
+			</label>
+		</p>
+		<button type="submit">Submit</button>
+	</EditForm>
+}
+
+@code {
+	[Parameter]
+	public int EmpId { get; set; }
+
+	private Employee _employee { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		var result = await Http.PostAsJsonAsync<int>("Employee/GetById", EmpId);
+		if (result.IsSuccessStatusCode)
+		{
+			var contentResult = await result.Content.ReadFromJsonAsync<Employee>();
+			if(contentResult == null)
+			{
+				toastService.ShowError("Unable to locate employee!");
+			}
+			else
+			{
+				_employee = contentResult;
+			}
+		}
+		else
+		{
+			var error = await result.Content.ReadAsStringAsync();
+			toastService.ShowError(error ?? string.Empty);
+		}
+	}
+
+
+	private async void HandleValidSubmit()
+	{
+		var result = await Http.PostAsJsonAsync<Employee>("Employee/UpdateEmployee", _employee);
+		if (result.IsSuccessStatusCode)
+		{
+			toastService.ShowSuccess("Success");
+			nav.NavigateTo("employees", false, true);
+		}
+		else
+		{
+			var error = await result.Content.ReadAsStringAsync();
+			toastService.ShowError(error ?? string.Empty);
+		}
+	}
+}
