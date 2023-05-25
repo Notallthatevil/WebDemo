@@ -8,10 +8,10 @@ namespace WebDemo.Server.Controllers
 	[Route("[controller]")]
 	public class ManagementController : Controller
 	{
-		private readonly ILogger<EmployeeController> _logger;
+		private readonly ILogger<ManagementController> _logger;
 		private readonly NateDbContext _dbContext;
 
-		public ManagementController(ILogger<EmployeeController> logger, NateDbContext dbContext)
+		public ManagementController(ILogger<ManagementController> logger, NateDbContext dbContext)
 		{
 			_logger = logger;
 			_dbContext = dbContext;
