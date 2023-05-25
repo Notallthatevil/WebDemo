@@ -1,0 +1,87 @@
+﻿@page "/management"
+@using WebDemo.Shared
+@inject HttpClient Http
+@inject NavigationManager nav
+@inject IToastService toastService
+
+<PageTitle>Management</PageTitle>
+
+<h1>Managers</h1>
+
+
+@if (_managers == null || _depEmployees == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Manager Name</th>
+				<th>Department</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var manager in _managers)
+			{
+				<tr>
+					@{
+						string initialValue;
+					}
+					@if (manager.ManagerId == 0)
+					{
+						initialValue = "Assign Manager";
+					}
+					else
+					{
+						initialValue = manager.ManagerName;
+					}
+					<td>
+						<Dropdown TItem="Employee" OnSelected="@AssignManager">
+							<InitialTip>@initialValue</InitialTip>
+							<ChildContent>
+								@if (_depEmployees.TryGetValue(manager.DepartmentId, out var emps))
+								{
+									@foreach (var emp in emps)
+									{
+										<DropdownListItem Item="@emp">@emp.FirstName @emp.LastName</DropdownListItem>
+									}
+								}
+							</ChildContent>
+						</Dropdown>
+					</td>
+					<td>@manager.DepartmentName</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+@code {
+	private IEnumerable<DepartmentManager>? _managers;
+	private IDictionary<int, IEnumerable<Employee>>? _depEmployees;
+
+	protected override async Task OnInitializedAsync()
+	{
+		_managers = await Http.GetFromJsonAsync<IEnumerable<DepartmentManager>>("Management/Managers");
+		_depEmployees = await Http.GetFromJsonAsync<IDictionary<int, IEnumerable<Employee>>>("Management/Employees");
+	}
+
+	private async void AssignManager(Employee employee)
+	{
+		var result = await Http.PostAsJsonAsync<Employee>("Management/AssignManager", employee);
+
+		if (result.IsSuccessStatusCode)
+		{
+			toastService.ShowSuccess("Success");
+		}
+		else
+		{
+			var error = await result.Content.ReadAsStringAsync();
+			toastService.ShowError(error ?? string.Empty);
+		}
+
+	}
+
+}
