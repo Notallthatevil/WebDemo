@@ -1,4 +1,9 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.DotNet.Scaffolding.Shared;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Configuration;
+using WebDemo.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<NateDbContext>((provider, options) => {
+    IConfiguration config = provider.GetRequiredService<IConfiguration>();
+    string connectionString = config.GetConnectionString("natedb");
+    options.UseSqlServer(connectionString);
+});
+
 
 var app = builder.Build();
 
