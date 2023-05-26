@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebDemo.Server.Models;
-
-public partial class Department
+namespace WebDemo.Server.Models
 {
-    public int Id { get; set; }
+    public partial class Department
+    {
+        public Department()
+        {
+            Employees = new HashSet<Employee>();
+        }
 
-    public string Name { get; set; } = null!;
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
 
-    public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
-
-    public virtual Manager? Manager { get; set; }
+        public virtual Manager? Manager { get; set; }
+        public virtual ICollection<Employee> Employees { get; set; }
+    }
 }
