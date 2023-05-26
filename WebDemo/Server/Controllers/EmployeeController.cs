@@ -29,6 +29,10 @@ namespace WebDemo.Server.Controllers
 		{
 			try
 			{
+				if(employee == null)
+				{
+					return BadRequest("Invalid employee provided!");
+				}
 				using (var transaction = _dbContext.Database.BeginTransaction())
 				{
 					var dep = _dbContext.Departments.SingleOrDefault(d => d.Name.ToLower() == employee.Department.ToLower());

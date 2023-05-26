@@ -45,25 +45,33 @@ namespace WebDemo.Server.Controllers
 		{
 			try
 			{
-				using (var transaction = _dbContext.Database.BeginTransaction())
+				if (employee == null)
 				{
-					var departmentId = _dbContext.Employees.SingleOrDefault(e => e.Id == employee.Id)?.DepartmentId;
-					if (departmentId != null)
+					return BadRequest("Invalid employee!");
+				}
+
+				var departmentId = _dbContext.Employees.SingleOrDefault(e => e.Id == employee.Id)?.DepartmentId;
+				if (departmentId != null)
+				{
+					using var transaction = _dbContext.Database.BeginTransaction();
 					{
 						var manager = _dbContext.Managers.SingleOrDefault(m => m.DepartmentId == departmentId);
 						if (manager != null)
 						{
-							_dbContext.Remove(manager);
+							_dbContext.Managers.Remove(manager);
 							_dbContext.SaveChanges();
 						}
 						_dbContext.Managers.Add(new Manager { ManagerId = employee.Id, DepartmentId = (int)departmentId });
+
+						_dbContext.SaveChanges();
+						transaction.Commit();
 					}
-
-					_dbContext.SaveChanges();
-					transaction.Commit();
+					return Ok();
 				}
-
-				return Ok();
+				else
+				{
+					return BadRequest("Department not valid!");
+				}
 			}
 			catch (Exception ex)
 			{
